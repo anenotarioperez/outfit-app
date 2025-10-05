@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Mi Outfit">
+    <meta name="description" content="Decide qué ponerte según el tiempo">
+    
+    <!-- Manifest -->
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiwr9RdcOpIG1lIHBvbmdvIGhveT8iLCJzaG9ydF9uYW1lIjoiTWkgT3V0Zml0Iiwic3RhcnRfdXJsIjoiLiIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiM2NjdlZWEiLCJ0aGVtZV9jb2xvciI6IiM2NjdlZWEiLCJpY29ucyI6W3sic3JjIjoiZGF0YTppbWFnZS9zdmcreG1sLCUzQ3N2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAxMDAgMTAwJyUzRSUzQ3JlY3Qgd2lkdGg9JzEwMCcgaGVpZ2h0PScxMDAnIGZpbGw9JyUyMzY2N2VlYScvJTNFJTNDdGV4dCB4PSc1MCUyNScgeT0nNTAlMjUnIGZvbnQtc2l6ZT0nNTAnIGZpbGw9J3doaXRlJyUzRfCfkZQlM0MvdGV4dCUzRSUzQy9zdmclM0UiLCJzaXplcyI6IjE5MngxOTIiLCJ0eXBlIjoiaW1hZ2Uvc3ZnK3htbCJ9LHsic3JjIjoiZGF0YTppbWFnZS9zdmcreG1sLCUzQ3N2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAxMDAgMTAwJyUzRSUzQ3JlY3Qgd2lkdGg9JzEwMCcgaGVpZ2h0PScxMDAnIGZpbGw9JyUyMzY2N2VlYScvJTNFJTNDdGV4dCB4PSc1MCUyNScgeT0nNTAlMjUnIGZvbnQtc2l6ZT0nNTAnIGZpbGw9J3doaXRlJyUzRfCfkZQlM0MvdGV4dCUzRSUzQy9zdmclM0UiLCJzaXplcyI6IjUxMng1MTIiLCJ0eXBlIjoiaW1hZ2Uvc3ZnK3htbCJ9XX0=">
+    
+    <!-- Apple Touch Icon -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23667eea'/%3E%3Ctext x='50%25' y='60%25' font-size='50' text-anchor='middle' fill='white'%3E👔%3C/text%3E%3C/svg%3E">
+    
+    <title>¿Qué me pongo hoy?</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+        
+        .location-container {
+            margin-bottom: 30px;
+        }
+        
+        .location {
+            color: #999;
+            font-size: 14px;
+            cursor: pointer;
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        
+        .location:hover {
+            background: #f0f0f0;
+        }
+        
+        .location-edit {
+            display: none;
+            margin-top: 10px;
+        }
+        
+        .location-edit.active {
+            display: block;
+        }
+        
+        .location-edit input {
+            padding: 10px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 14px;
+            width: 200px;
+            margin-right: 10px;
+        }
+        
+        .location-edit button {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .location-edit button:hover {
+            background: #5568d3;
+        }
+        
+        .weather-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .temperature {
+            font-size: 48px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .weather-description {
+            font-size: 18px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .outfit-suggestion {
+            background: #e8f5e9;
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+        
+        .outfit-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2e7d32;
+            margin-bottom: 15px;
+        }
+        
+        .outfit-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .outfit-item-label {
+            font-weight: 600;
+            color: #666;
+            margin-right: 10px;
+            min-width: 100px;
+        }
+        
+        .outfit-item-value {
+            color: #333;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+        
+        .update-button {
+            width: 100%;
+            padding: 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        
+        .update-button:hover {
+            background: #5568d3;
+        }
+        
+        .hint {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+            font-style: italic;
+        }
+        
+        .install-prompt {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .install-prompt.show {
+            display: block;
+        }
+        
+        .install-prompt button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background: #ffc107;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="install-prompt" id="installPrompt">
+            <strong>💡 Instala esta app</strong>
+            <p>Añádela a tu pantalla de inicio para acceso rápido</p>
+            <button onclick="showInstallInstructions()">Ver cómo hacerlo</button>
+        </div>
+        
+        <h1>¿Qué me pongo hoy?</h1>
+        
+        <div class="location-container">
+            <div class="location" id="locationDisplay" onclick="toggleLocationEdit()">
+                📍 <span id="cityName">Bilbao</span>, <span id="countryName">España</span>
+            </div>
+            <div class="hint">Click para cambiar de ciudad</div>
+            
+            <div class="location-edit" id="locationEdit">
+                <input type="text" id="cityInput" placeholder="Ej: Barcelona, Madrid, París">
+                <button onclick="saveLocation()">Guardar</button>
+                <button onclick="toggleLocationEdit()" style="background: #999;">Cancelar</button>
+            </div>
+        </div>
+        
+        <div id="content">
+            <div class="loading">Cargando el tiempo...</div>
+        </div>
+        
+        <button class="update-button" onclick="getWeatherAndOutfit()">🔄 Actualizar</button>
+    </div>
+
+    <script>
+        // CONFIGURACIÓN
+        const API_KEY = '616aa895bf6074073d3d22e71d28d6a9'; // ⚠️ IMPORTANTE: Cambia esto por tu API key
+        
+        // VARIABLES GLOBALES
+        let currentCity = 'Bilbao';
+        let currentCountry = 'ES';
+        
+        // Detectar si puede instalarse como PWA
+        window.addEventListener('DOMContentLoaded', () => {
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+                // Ya está instalada como app
+                console.log('App instalada');
+            } else {
+                // Mostrar prompt de instalación
+                setTimeout(() => {
+                    document.getElementById('installPrompt').classList.add('show');
+                }, 3000);
+            }
+        });
+        
+        // Función para mostrar instrucciones de instalación
+        function showInstallInstructions() {
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+            const isAndroid = /Android/.test(navigator.userAgent);
+            
+            let instructions = '';
+            
+            if (isIOS) {
+                instructions = `
+Para añadir a tu iPhone/iPad:
+1. Toca el botón de compartir (cuadrado con flecha)
+2. Desplázate y toca "Añadir a pantalla de inicio"
+3. Toca "Añadir"
+                `;
+            } else if (isAndroid) {
+                instructions = `
+Para añadir a tu Android:
+1. Toca el menú (⋮) en la esquina superior
+2. Toca "Añadir a pantalla de inicio"
+3. Toca "Añadir"
+                `;
+            } else {
+                instructions = `
+Para añadir como app:
+• En móvil: Usa el menú del navegador
+• Busca "Añadir a pantalla de inicio"
+                `;
+            }
+            
+            alert(instructions);
+        }
+        
+        // PASO 1: Cargar ciudad guardada al iniciar
+        function loadSavedLocation() {
+            const savedCity = localStorage.getItem('userCity');
+            const savedCountry = localStorage.getItem('userCountry');
+            
+            if (savedCity && savedCountry) {
+                currentCity = savedCity;
+                currentCountry = savedCountry;
+                updateLocationDisplay();
+            }
+        }
+        
+        // PASO 2: Mostrar/ocultar editor de ubicación
+        function toggleLocationEdit() {
+            const editDiv = document.getElementById('locationEdit');
+            editDiv.classList.toggle('active');
+            
+            if (editDiv.classList.contains('active')) {
+                document.getElementById('cityInput').focus();
+            }
+        }
+        
+        // PASO 3: Guardar nueva ubicación
+        function saveLocation() {
+            const cityInput = document.getElementById('cityInput').value.trim();
+            
+            if (!cityInput) {
+                alert('Por favor, escribe una ciudad');
+                return;
+            }
+            
+            let city, country;
+            if (cityInput.includes(',')) {
+                const parts = cityInput.split(',');
+                city = parts[0].trim();
+                country = parts[1] ? parts[1].trim() : 'ES';
+            } else {
+                city = cityInput;
+                country = 'ES';
+            }
+            
+            localStorage.setItem('userCity', city);
+            localStorage.setItem('userCountry', country);
+            
+            currentCity = city;
+            currentCountry = country;
+            
+            updateLocationDisplay();
+            toggleLocationEdit();
+            
+            getWeatherAndOutfit();
+        }
+        
+        // PASO 4: Actualizar texto de ubicación
+        function updateLocationDisplay() {
+            const countryNames = {
+                'ES': 'España',
+                'FR': 'Francia',
+                'IT': 'Italia',
+                'PT': 'Portugal',
+                'UK': 'Reino Unido',
+                'GB': 'Reino Unido',
+                'US': 'Estados Unidos',
+                'DE': 'Alemania',
+                'NL': 'Países Bajos',
+                'BE': 'Bélgica',
+                'CH': 'Suiza',
+                'AT': 'Austria'
+            };
+            
+            document.getElementById('cityName').textContent = currentCity;
+            document.getElementById('countryName').textContent = countryNames[currentCountry] || currentCountry;
+        }
+        
+        // PASO 5: Función principal
+        async function getWeatherAndOutfit() {
+            const contentDiv = document.getElementById('content');
+            contentDiv.innerHTML = '<div class="loading">Cargando el tiempo...</div>';
+            
+            try {
+                const weatherData = await getWeather();
+                
+                const temperature = Math.round(weatherData.main.temp);
+                const description = weatherData.weather[0].description;
+                const isRaining = weatherData.weather[0].main.toLowerCase().includes('rain');
+                
+                const outfit = decideOutfit(temperature, isRaining);
+                
+                displayResults(temperature, description, outfit);
+                
+            } catch (error) {
+                contentDiv.innerHTML = `
+                    <div class="error">
+                        ❌ No se pudo obtener el tiempo de ${currentCity}. 
+                        <br><br>
+                        Verifica:
+                        <br>• Que la ciudad esté bien escrita
+                        <br>• Tu conexión a internet
+                        <br>• Que la API key sea válida
+                    </div>
+                `;
+            }
+        }
+        
+        // PASO 6: Llamar a la API
+        async function getWeather() {
+            const url = `https://api.openweathermap.org/data/2.5/weather?q=${currentCity},${currentCountry}&appid=${API_KEY}&units=metric&lang=es`;
+            const response = await fetch(url);
+            
+            if (!response.ok) {
+                throw new Error('Error al obtener el tiempo');
+            }
+            
+            return await response.json();
+        }
+        
+        // PASO 7: Lógica de decisión de outfit
+        function decideOutfit(temp, isRaining) {
+            let outfit = {
+                abrigo: '',
+                intermedio: '',
+                arriba: '',
+                abajo: '',
+                calzado: ''
+            };
+            
+            if (temp < 0) {
+                outfit.abrigo = 'Plumífero gordo beis';
+                const intermedioOptions = ['Jersey gordo', 'Sudadera gorda'];
+                outfit.intermedio = intermedioOptions[Math.floor(Math.random() * intermedioOptions.length)];
+                outfit.arriba = 'Camiseta térmica';
+                
+            } else if (temp >= 0 && temp < 10) {
+                if (isRaining) {
+                    const abrigoOptions = ['Plumífero negro largo', 'Plumífero corto'];
+                    outfit.abrigo = abrigoOptions[Math.floor(Math.random() * abrigoOptions.length)];
+                } else {
+                    const abrigoOptions = ['Abrigo negro', 'Plumífero corto', 'Plumífero negro largo'];
+                    outfit.abrigo = abrigoOptions[Math.floor(Math.random() * abrigoOptions.length)];
+                }
+                const intermedioOptions = ['Jersey gordo', 'Sudadera gorda'];
+                outfit.intermedio = intermedioOptions[Math.floor(Math.random() * intermedioOptions.length)];
+                outfit.arriba = 'Camiseta térmica';
+                
+            } else if (temp >= 10 && temp < 16) {
+                outfit.abrigo = 'Chubasquero';
+                outfit.intermedio = 'Sudadera gorda';
+                const arribaOptions = ['Camiseta manga corta', 'Camiseta manga larga'];
+                outfit.arriba = arribaOptions[Math.floor(Math.random() * arribaOptions.length)];
+                
+            } else if (temp >= 16 && temp < 20) {
+                if (isRaining) {
+                    outfit.abrigo = 'Chubasquero';
+                } else {
+                    const abrigoOptions = ['Chaqueta vaquera', 'Chaqueta de traje'];
+                    outfit.abrigo = abrigoOptions[Math.floor(Math.random() * abrigoOptions.length)];
+                }
+                outfit.intermedio = 'Nada';
+                const arribaOptions = ['Camiseta manga corta', 'Camiseta manga larga'];
+                outfit.arriba = arribaOptions[Math.floor(Math.random() * arribaOptions.length)];
+                
+            } else if (temp >= 20 && temp < 25) {
+                if (isRaining) {
+                    outfit.abrigo = 'Chubasquero';
+                } else {
+                    const abrigoOptions = ['Chaqueta vaquera', 'Chaqueta de traje'];
+                    outfit.abrigo = abrigoOptions[Math.floor(Math.random() * abrigoOptions.length)];
+                }
+                outfit.intermedio = 'Nada';
+                outfit.arriba = 'Camiseta manga corta';
+                
+            } else {
+                outfit.abrigo = 'Sin chaqueta';
+                outfit.intermedio = 'Nada';
+                outfit.arriba = 'Camiseta manga corta';
+            }
+            
+            const abajoOptions = ['Vaqueros', 'Pantalones de vestir'];
+            outfit.abajo = abajoOptions[Math.floor(Math.random() * abajoOptions.length)];
+            
+            if (isRaining) {
+                const calzadoOptions = ['Botines estilo Martens', 'Botas verdes de agua', 'Botines de piel marrones'];
+                outfit.calzado = calzadoOptions[Math.floor(Math.random() * calzadoOptions.length)];
+            } else if (temp < 10) {
+                const calzadoOptions = ['Botines estilo Martens', 'Botines de piel marrones', 'Deportivas'];
+                outfit.calzado = calzadoOptions[Math.floor(Math.random() * calzadoOptions.length)];
+            } else {
+                const calzadoOptions = ['Botines estilo Martens', 'Botines de piel marrones', 'Deportivas', 'Playeras granates', 'Playeras de leopardo', 'Zapatos granates'];
+                outfit.calzado = calzadoOptions[Math.floor(Math.random() * calzadoOptions.length)];
+            }
+            
+            return outfit;
+        }
+        
+        // PASO 8: Mostrar resultados
+        function displayResults(temp, description, outfit) {
+            const contentDiv = document.getElementById('content');
+            contentDiv.innerHTML = `
+                <div class="weather-info">
+                    <div class="temperature">${temp}°C</div>
+                    <div class="weather-description">${description}</div>
+                </div>
+                
+                <div class="outfit-suggestion">
+                    <div class="outfit-title">👔 Tu outfit de hoy</div>
+                    <div class="outfit-item">
+                        <span class="outfit-item-label">Abrigo:</span>
+                        <span class="outfit-item-value">${outfit.abrigo}</span>
+                    </div>
+                    <div class="outfit-item">
+                        <span class="outfit-item-label">Intermedio:</span>
+                        <span class="outfit-item-value">${outfit.intermedio}</span>
+                    </div>
+                    <div class="outfit-item">
+                        <span class="outfit-item-label">Arriba:</span>
+                        <span class="outfit-item-value">${outfit.arriba}</span>
+                    </div>
+                    <div class="outfit-item">
+                        <span class="outfit-item-label">Abajo:</span>
+                        <span class="outfit-item-value">${outfit.abajo}</span>
+                    </div>
+                    <div class="outfit-item">
+                        <span class="outfit-item-label">Calzado:</span>
+                        <span class="outfit-item-value">${outfit.calzado}</span>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // PASO 9: Inicializar al cargar
+        window.onload = function() {
+            loadSavedLocation();
+            getWeatherAndOutfit();
+        };
+    </script>
+</body>
+</html>
